@@ -5105,6 +5105,24 @@ TCanvas *chanzCC = new TCanvas();
 chans->Draw();
 chanzCC->Print("channels_thits_lt_150.eps");
 
+michels_data->SetTitle("Michels;tank hits");
+michels_data->SetFillStyle(0);
+michels_data->SetMarkerStyle(20);
+michels_data->SetMarkerSize(0.7);
+michels_data->SetLineColor(1);
+michels_data->SetMarkerColor(2);
+michels_data->SetBarWidth(4);
+michels_data->SetLineWidth(1);
+
+michels_mc->SetLineWidth(2);
+michels_mc->SetLineColor(kBlack);
+michels_mc->Scale(michels_data->Integral()/michels_mc->Integral());
+
+TCanvas *michC = new TCanvas();
+michels_data->Draw("e1p");
+michels_mc->Draw("same");
+michC->Print("michels.eps");
+
 //for (int i=1; i<=spitztime_in_5->GetNbinsX(); i++)
 //	cout<<" < 150 thits time bet: "<<spitztime_in_5->GetXaxis()->GetBinLowEdge(i)<<" - "<<spitztime_in_5->GetXaxis()->GetBinUpEdge(i)<<" has "<<spitztime_in_5->GetBinContent(i)<<endl;
 

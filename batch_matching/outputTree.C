@@ -36,7 +36,7 @@ int n_batches = 0;
 TGraph *tstamp_vs_batches = new TGraph("tstamp_batches_nsec.txt","%lf %lf");
 
 //Create a new file + a clone of old tree in new file
-TFile *newfile = new TFile("numi_data_five_batches.root","recreate");
+TFile *newfile = new TFile("numi_data_five_batches_early_all_batches_late.root","recreate");
 TTree *newtree = fChain->CloneTree(0);
 
    if (fChain == 0) return;
@@ -74,7 +74,10 @@ TTree *newtree = fChain->CloneTree(0);
   
         cout<<" success counter "<<success_ctr<<" total counter "<<total_ctr<<" ratio "<<(float)success_ctr/total_ctr<<" detector time "<<det_tstamp<<" n_batches "<<n_batches<<endl;
 
-         if (n_batches==5){
+         //if (n_batches==6) cout<<" outside n_batches "<<n_batches<<" time "<<mysplitEvent_aveTimeTank[0]<<endl;
+
+         if ((n_batches==5&&mysplitEvent_aveTimeTank[0]<6000) || (mysplitEvent_aveTimeTank[0]>6000)){
+           //if (n_batches==6) cout<<" n_batches "<<n_batches<<" time "<<mysplitEvent_aveTimeTank[0]<<endl;
            newtree->Fill();
          }
 

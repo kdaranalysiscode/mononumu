@@ -154,7 +154,7 @@ TH1F *time_out_ratio_5 = new TH1F("time_out_ratio_5","",bins_time_ratio,start_ti
 
 TH1F *time = new TH1F("time","",130,0.,13000.);
 
-const int nWindows = 4;
+const int nWindows = 2;
 float windowBounds[nWindows+1];//unit is ns
 
 //double start_rise = 11250.;
@@ -177,14 +177,19 @@ float windowBounds[nWindows+1];//unit is ns
 
 //for (int i=0; i<nWindows; i++) cout<<" index "<<i<<" value "<<windowBounds[i]<<" diff from previous "<<windowBounds[i]-windowBounds[i-1]<<endl; 
 
+//windowBounds[0] = 2500.;
+//windowBounds[1] = 2700.;
+
 windowBounds[0] = 2500.;
-windowBounds[1] = 2750.;
-windowBounds[2] = 3000.;
-windowBounds[3] = 3250.;
-windowBounds[4] = 3500.;
-//windowBounds[2] = 2900.;
-//windowBounds[2] = 3500.;
-//windowBounds[2] = 6000.;
+windowBounds[1] = 2700.;
+windowBounds[2] = 11750.;
+
+float first_lo = 2500.;
+float first_up = 2736.;
+
+float sec_lo = 11250.;
+float sec_up = 11750.;
+
 
 /*
 windowBounds[1] = 1000.;
@@ -209,6 +214,10 @@ TH1F *thits_windows_slide_left[nWindows];
 TH1F *thits_windows_slide_right[nWindows];
 TH1F *thits_windows_excl[nWindows];
 
+TH1F *thits_windows_excl_big[nWindows];
+TH1F *thits_windows_excl_sb[nWindows];
+TH1F *thits_windows_excl_sig[nWindows];
+
 TH1F *thits_windows_slide_left_bkg_subt[nWindows];
 TH1F *thits_windows_slide_right_bkg_subt[nWindows];
 TH1F *thits_windows_excl_bkg_subt[nWindows][nModels];
@@ -221,6 +230,9 @@ for (int i=0; i<nWindows; i++){
   thits_windows_slide_left[i] = new TH1F(Form("thits_windows_slide_left_%d",i),"",thitbins,0.,last);
   thits_windows_slide_right[i] = new TH1F(Form("thits_windows_slide_right_%d",i),"",thitbins,0.,last);
   thits_windows_excl[i] = new TH1F(Form("thits_windows_excl_%d",i),"",thitbins,0.,last);
+  thits_windows_excl_big[i] = new TH1F(Form("thits_windows_excl_big_%d",i),"",24,0.,1200);
+  thits_windows_excl_sb[i] = new TH1F(Form("thits_windows_excl_sb_%d",i),"",15,150,300);
+  thits_windows_excl_sig[i] = new TH1F(Form("thits_windows_excl_sig_%d",i),"",15,0,150);
 
   for (int j=0; j<nModels; j++)
   	thits_windows_excl_bkg_subt[i][j] = new TH1F(Form("thits_windows_excl_%d_%d",i,j),"",thitbins,0.,last);
@@ -439,10 +451,25 @@ for (int i=0; i<nWindows; i++){
 		  if (beamAveTime < windowBounds[nWindows-1] && beamAveTime >= windowBounds[i]) 
 		  	thits_windows_slide_left[i]->Fill(tHits_1SE);
 
-		  if (beamAveTime > windowBounds[i] && beamAveTime <= windowBounds[i+1]) 
-		  	thits_windows_excl[i]->Fill(tHits_1SE);
+		  //if (beamAveTime > windowBounds[i] && beamAveTime <= windowBounds[i+1]) 
+		  	//thits_windows_excl[i]->Fill(tHits_1SE);
 		
 		}
+
+          //hardcode two windows
+		  if (beamAveTime > first_lo && beamAveTime <= first_up){ 
+		  	thits_windows_excl[0]->Fill(tHits_1SE);
+		  	thits_windows_excl_big[0]->Fill(tHits_1SE);
+		  	thits_windows_excl_sb[0]->Fill(tHits_1SE);
+		  	thits_windows_excl_sig[0]->Fill(tHits_1SE);
+		  }
+
+		  if (beamAveTime > sec_lo && beamAveTime <= sec_up){ 
+		  	thits_windows_excl[1]->Fill(tHits_1SE);
+		  	thits_windows_excl_big[1]->Fill(tHits_1SE);
+		  	thits_windows_excl_sb[1]->Fill(tHits_1SE);
+		  	thits_windows_excl_sig[1]->Fill(tHits_1SE);
+		  }	
 
 		if (tHits_1SE<150) time_in_5->Fill(beamAveTime);
 		if (tHits_1SE>=300) time_out_5->Fill(beamAveTime);
@@ -671,34 +698,83 @@ if (signal_model[whichModel]->Integral()>0.) signal_and_background_template->Add
   	thits_windows_excl[i]->SetMarkerColor(2);
   	thits_windows_excl[i]->SetBarWidth(4);
   	thits_windows_excl[i]->SetLineWidth(1);
+
+  	thits_windows_excl_big[i]->SetFillStyle(0);
+  	thits_windows_excl_big[i]->SetMarkerStyle(20);
+  	thits_windows_excl_big[i]->SetMarkerSize(0.7);
+  	thits_windows_excl_big[i]->SetLineColor(1);
+  	thits_windows_excl_big[i]->SetMarkerColor(2);
+  	thits_windows_excl_big[i]->SetBarWidth(4);
+  	thits_windows_excl_big[i]->SetLineWidth(1);
+
+  	thits_windows_excl_sb[i]->SetFillStyle(0);
+  	thits_windows_excl_sb[i]->SetMarkerStyle(20);
+  	thits_windows_excl_sb[i]->SetMarkerSize(0.7);
+  	thits_windows_excl_sb[i]->SetLineColor(1);
+  	thits_windows_excl_sb[i]->SetMarkerColor(2);
+  	thits_windows_excl_sb[i]->SetBarWidth(4);
+  	thits_windows_excl_sb[i]->SetLineWidth(1);
+
+  	thits_windows_excl_sig[i]->SetFillStyle(0);
+  	thits_windows_excl_sig[i]->SetMarkerStyle(20);
+  	thits_windows_excl_sig[i]->SetMarkerSize(0.7);
+  	thits_windows_excl_sig[i]->SetLineColor(1);
+  	thits_windows_excl_sig[i]->SetMarkerColor(2);
+  	thits_windows_excl_sig[i]->SetBarWidth(4);
+  	thits_windows_excl_sig[i]->SetLineWidth(1);
 //    signal_and_background_template->SetLineWidth(2);
 //  
   // thits_windows_excl[i]->SetMaximum(thits_windows_excl[0]->GetMaximum()*1.1);
 //  
 //  
  int nbins = thits_windows_excl[i]->GetNbinsX();
-  if (whichModel==0) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.022,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==1) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.000,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==2) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.002,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==3) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.004,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==4) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.006,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==5) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.008,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==6) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.010,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==7) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.012,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==8) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.014,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==9) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.016,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==10) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.018,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==11) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.978,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==12) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.982,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==13) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.984,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==14) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.986,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==15) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.988,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==16) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.990,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==17) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.992,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==18) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.994,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==19) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.996,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
-  if (whichModel==20) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.998,windowBounds[i],windowBounds[i+1],thits_windows_excl[i]->Integral()));
  
+  if (i==0){
+    if (whichModel==0) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.022,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==1) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.000,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==2) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.002,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==3) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.004,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==4) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.006,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==5) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.008,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==6) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.010,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==7) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.012,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==8) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.014,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==9) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.016,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==10) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.018,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==11) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.978,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==12) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.982,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==13) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.984,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==14) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.986,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==15) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.988,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==16) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.990,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==17) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.992,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==18) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.994,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==19) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.996,first_lo,first_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==20) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.998,first_lo,first_up,thits_windows_excl[i]->Integral()));
+  } 
+  if (i==1){
+    if (whichModel==0) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.022,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==1) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.000,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==2) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.002,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==3) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.004,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==4) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.006,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==5) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.008,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==6) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.010,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==7) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.012,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==8) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.014,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==9) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.016,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==10) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",1.018,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==11) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.978,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==12) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.982,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==13) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.984,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==14) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.986,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==15) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.988,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==16) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.990,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==17) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.992,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==18) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.994,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==19) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.996,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+    if (whichModel==20) thits_windows_excl[i]->SetTitle(Form("#kappa = %1.3f, window: %4.0f -  %4.0f ns, %1.0f events; tank hits",0.998,sec_lo,sec_up,thits_windows_excl[i]->Integral()));
+  } 
 
  	  for(int ii=3;ii<=30;ii++)
   {
@@ -832,6 +908,65 @@ timeC->SetGrid();
 //timeC->SetGridY();
 time->Draw();
 timeC->Print("time.eps");
+
+thits_windows_excl[1]->SetMarkerColor(kBlue);
+
+thits_windows_excl[0]->SetMaximum(10);
+
+float kstest = thits_windows_excl[0]->KolmogorovTest(thits_windows_excl[1]);
+
+thits_windows_excl[0]->SetTitle(Form("red: early blue: late KS prob %1.3f",kstest));
+thits_windows_excl[0]->SetLineColor(kRed);
+thits_windows_excl[1]->SetLineColor(kBlue);
+
+TCanvas *timeC44 = new TCanvas();
+thits_windows_excl[0]->Draw("e1p");
+thits_windows_excl[1]->Draw("e1p same");
+timeC44->Print("comp_shapes.eps");
+
+float kstest2 = thits_windows_excl_big[0]->KolmogorovTest(thits_windows_excl_big[1]);
+
+thits_windows_excl_big[0]->SetTitle(Form("red: early blue: late KS prob %1.3f; tank hits",kstest2));
+thits_windows_excl_big[1]->SetMarkerColor(kBlue);
+thits_windows_excl_big[0]->SetMaximum(1.4*thits_windows_excl_big[1]->GetMaximum());
+thits_windows_excl_big[0]->SetLineColor(kRed);
+thits_windows_excl_big[1]->SetLineColor(kBlue);
+
+TCanvas *timeC443 = new TCanvas();
+thits_windows_excl_big[0]->Draw("e1p");
+thits_windows_excl_big[1]->Draw("e1p same");
+timeC443->Print("comp_shapes_rng.eps");
+
+float kstest3 = thits_windows_excl_sb[0]->KolmogorovTest(thits_windows_excl_sb[1]);
+
+thits_windows_excl_sb[0]->SetTitle(Form("red: early blue: late KS prob %1.3f; tank hits",kstest3));
+thits_windows_excl_sb[1]->SetMarkerColor(kBlue);
+thits_windows_excl_sb[0]->SetMaximum(2.0*thits_windows_excl_sb[1]->GetMaximum());
+thits_windows_excl_sb[0]->SetLineColor(kRed);
+thits_windows_excl_sb[1]->SetLineColor(kBlue);
+
+TCanvas *timeC4435 = new TCanvas();
+thits_windows_excl_sb[0]->Draw("e1p");
+thits_windows_excl_sb[1]->Draw("e1p same");
+timeC4435->Print("comp_shapes_sb.eps");
+
+float kstest4 = thits_windows_excl_sig[0]->KolmogorovTest(thits_windows_excl_sig[1]);
+
+thits_windows_excl_sig[0]->SetTitle(Form("red: early blue: late KS prob %1.3f; tank hits",kstest4));
+thits_windows_excl_sig[1]->SetMarkerColor(kBlue);
+thits_windows_excl_sig[0]->SetMaximum(1.9*thits_windows_excl_sig[1]->GetMaximum());
+thits_windows_excl_sig[0]->SetLineColor(kRed);
+thits_windows_excl_sig[1]->SetLineColor(kBlue);
+
+TCanvas *timeC443545 = new TCanvas();
+thits_windows_excl_sig[0]->Draw("e1p");
+thits_windows_excl_sig[1]->Draw("e1p same");
+timeC443545->Print("comp_shapes_sig.eps");
+
+cout<<" kstest reduced rng "<<kstest<<endl;
+cout<<" kstest full rng "<<kstest2<<endl;
+cout<<" kstest sb "<<kstest3<<endl;
+cout<<" kstest sig "<<kstest4<<endl;
 
 return;
 

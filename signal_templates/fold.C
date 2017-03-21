@@ -24,7 +24,7 @@ TH1F *transformedHist(TH1 *inpt,TH2 *corr);
 
 TH1F *transformedHist_iter(TH1 *inpt,TH2 *corr,int n_iter);
 
-int whichDist = 1;
+int whichDist = 2;// 0 = tank hits; 1 = stfull_energy 2; = stflux_ecer
 
 void fold(){
 
@@ -57,6 +57,7 @@ void fold(){
   TString fileName2;
   if (whichDist==0) fileName2 = "unfoldFile_fullmcstats_testfoldunfold_2.root";
   if (whichDist==1) fileName2 = "unfoldFile_fullmcstats_stfull.root";
+  if (whichDist==2) fileName2 = "unfoldFile_fullmcstats_stflux.root";
   //TString fileName2 = "unfoldFile_fullmcstats_testfoldunfold.root";
   //TString fileName2 = "unfoldFile_fullmcstats.root";
   //TString fileName2 = "unfoldFile.root";
@@ -111,6 +112,7 @@ void fold(){
   for (int i=0; i<nModels_jg; i++){
   	if (whichDist==0) tru_tmu_tank_hit_fold[i]->GetXaxis()->SetTitle("tank hits");
   	if (whichDist==1) tru_tmu_tank_hit_fold[i]->GetXaxis()->SetTitle("stfull fitter energy (MeV)");
+  	if (whichDist==2) tru_tmu_tank_hit_fold[i]->GetXaxis()->SetTitle("stflux ecer mu");
   	tru_tmu_tank_hit_fold[i]->GetYaxis()->SetTitle("T_{#mu} (MeV)");
   }
 
@@ -207,6 +209,7 @@ void fold(){
   toyMCtest_fold_unfold->Draw("same");
   if (whichDist==0) c33->Print("fold_unfold_smooth_thits.eps");
   if (whichDist==1) c33->Print("fold_unfold_smooth_stfull.eps");
+  if (whichDist==2) c33->Print("fold_unfold_smooth_stflux.eps");
     
   TH1F *thit[nModels];
   TH1F *backwards_check[nModels];
@@ -253,6 +256,11 @@ void fold(){
       if (i==0) testfuf->Print("fold_unfold_test_stfull.ps(");
       if (i>0&&i<nModels-1) testfuf->Print("fold_unfold_test_stfull.ps");
       if (i==nModels-1) testfuf->Print("fold_unfold_test_stfull.ps)");
+    }
+    if (whichDist==2){
+      if (i==0) testfuf->Print("fold_unfold_test_stflux.ps(");
+      if (i>0&&i<nModels-1) testfuf->Print("fold_unfold_test_stflux.ps");
+      if (i==nModels-1) testfuf->Print("fold_unfold_test_stflux.ps)");
     }
   }
  
@@ -362,8 +370,10 @@ void fold(){
 
   if (whichDist==0) thit[0]->SetMaximum(80000.);
   if (whichDist==1) thit[0]->SetMaximum(100000.);
+  if (whichDist==2) thit[0]->SetMaximum(120000.);
   if (whichDist==0) thit[0]->SetTitle("236 MeV numu T_{#mu} translated to tank hits; tank hits");
   if (whichDist==1) thit[0]->SetTitle("236 MeV numu T_{#mu} translated to stfull energy; fitter energy (MeV)");
+  if (whichDist==2) thit[0]->SetTitle("236 MeV numu T_{#mu} translated to stflux ecer; stflux ecer");
 
   TCanvas *thitspr = new TCanvas();
   thit[0]->Draw();
@@ -372,10 +382,12 @@ void fold(){
   leg->Draw();
   if (whichDist==0) thitspr->Print("tank_hits_models.eps");
   if (whichDist==1) thitspr->Print("stfull_models.eps");
+  if (whichDist==2) thitspr->Print("stflux_models.eps");
   
   TString sig_name;
   if (whichDist==0) sig_name = "signal_templates_thits.root";
   if (whichDist==1) sig_name = "signal_templates_stfull.root";
+  if (whichDist==2) sig_name = "signal_templates_stflux.root";
   
   TFile writeFile(sig_name.Data(),"RECREATE");
   for (int i=0; i<nModels; i++) thit[i]->Write(thit[i]->GetName());
@@ -392,6 +404,10 @@ void fold(){
     if (whichDist==1){
       if (i<11) myfile[i].open (Form("signal_template_stfull_kappa_0%d.txt",978+2*i));
       else myfile[i].open (Form("signal_template_stfull_kappa_%d.txt",978+2*i));
+    }
+    if (whichDist==2){
+      if (i<11) myfile[i].open (Form("signal_template_stflux_kappa_0%d.txt",978+2*i));
+      else myfile[i].open (Form("signal_template_stflux_kappa_%d.txt",978+2*i));
     }
     
     for (int j=1; j<=thit[i]->GetNbinsX(); j++){
